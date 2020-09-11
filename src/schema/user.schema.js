@@ -1,6 +1,11 @@
 const { GraphQLObjectType, GraphQLSchema } = require("graphql");
-// const { user, users, createUser } = require("../modules/user/controller");
-const { myEvent, attendEvent } = require("../modules/event/controller");
+const { me } = require("../modules/user/controller");
+const {
+  myEvent,
+  myEvents,
+  attendEvent,
+  updateEvent,
+} = require("../modules/event/controller");
 
 const userAccessUserQuery = new GraphQLObjectType({
   type: "userAccessUserQuery",
@@ -8,6 +13,8 @@ const userAccessUserQuery = new GraphQLObjectType({
   description: "user access query",
   fields: () => ({
     myEvent,
+    myEvents,
+    me,
   }),
 });
 
@@ -17,6 +24,7 @@ const userAccessUserMutation = new GraphQLObjectType({
   description: "user access mutation",
   fields: () => ({
     attendEvent,
+    updateEvent,
   }),
 });
 

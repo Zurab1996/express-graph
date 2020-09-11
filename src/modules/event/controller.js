@@ -10,8 +10,8 @@ const {
 const Event = require("../../Models/Event");
 const { EventType, EventLocationInputType } = require("../../objectTypes");
 const User = require("../../Models/User");
-const { createEventValidation } = require("./validation");
-const { nestedUser, nestedEventObj } = require("../../nestedSchemaServices");
+const { createEventValidation, editEventValidation } = require("./validation");
+const { nestedEventObj } = require("../../nestedSchemaServices");
 
 const event = {
   name: "event",
@@ -127,8 +127,9 @@ const myEvent = {
       if (!_id) {
         return new GraphQLError("_id:required");
       } else {
-        const eventDoc = await Event.findById(_id);
-        if (eventDoc.creator === req.user._id) {
+        const currentUser = await User.findById(req.user._id);
+        if (currentUser && currentUser.attendedEvents.includes(_id)) {
+          const eventDoc = await Event.findById(_id);
           const nextEvent = nestedEventObj(eventDoc._doc);
           return nextEvent;
         } else {
@@ -144,8 +145,26 @@ const myEvent = {
 
 const myEvents = {
   name: "myEvent",
-  type: EventType,
-  resolve: (parent, args, req) => {},
+  type: new GraphQLList(EventType),
+  resolve: async (parent, args, req) => {
+    try {
+      // find user
+      const currentUser = await User.findById(req.user._id);
+      if (currentUser && currentUser.attendedEvents.length) {
+        const eventsList = [];
+        for (const eventId of [...new Set(currentUser.attendedEvents)]) {
+          const getEvent = await Event.findById(eventId);
+          const nextEvent = nestedEventObj(getEvent._doc);
+          eventsList.push(nextEvent);
+        }
+        return eventsList;
+      }
+      return null;
+    } catch (e) {
+      console.error(e);
+      return new GraphQLError("be:error");
+    }
+  },
 };
 
 const attendEvent = {
@@ -172,6 +191,15 @@ const attendEvent = {
           },
           { new: true, useFindAndModify: false }
         );
+        await User.findOneAndUpdate(
+          { _id: req.user._id },
+          {
+            $push: {
+              attendedEvents: currentEvent._id,
+            },
+          },
+          { new: false, useFindAndModify: false }
+        );
         const nextEvent = nestedEventObj(currentEvent._doc);
         return nextEvent;
       }
@@ -182,9 +210,61 @@ const attendEvent = {
   },
 };
 
-const updateEvent = {};
-
-const updateMyEvent = {};
+const updateEvent = {
+  name: "updateEvent",
+  type: EventType,
+  args: {
+    _id: { type: new GraphQLNonNull(GraphQLID) },
+    name: { type: GraphQLString },
+    location: { type: EventLocationInputType },
+    ticketQuantity: { type: GraphQLInt },
+    startDate: { type: GraphQLString },
+    endDate: { type: GraphQLString },
+    active: { type: GraphQLBoolean },
+  },
+  resolve: async (parent, args, req) => {
+    try {
+      const {
+        _id,
+        name,
+        location,
+        ticketQuantity,
+        startDate,
+        endDate,
+        active,
+      } = args;
+      const errors = editEventValidation({
+        _id,
+        name,
+        location,
+        ticketQuantity,
+        startDate,
+        endDate,
+        active,
+      });
+      if (errors.length) {
+        return new GraphQLError(errors);
+      } else {
+        let options = {};
+        if (name) options = { ...options, name };
+        if (location) options = { ...options, location };
+        if (ticketQuantity) options = { ...options, ticketQuantity };
+        if (startDate) options = { ...options, startDate };
+        if (endDate) options = { ...options, endDate };
+        if (active) options = { ...options, active };
+        const updateEvent = await Event.findByIdAndUpdate(_id, options, {
+          new: true,
+          useFindAndModify: false,
+        });
+        const nextEvent = nestedEventObj(updateEvent._doc);
+        return nextEvent;
+      }
+    } catch (e) {
+      console.error(e);
+      return new GraphQLError("be:error");
+    }
+  },
+};
 
 module.exports = {
   event,
@@ -194,5 +274,4 @@ module.exports = {
   myEvents,
   attendEvent,
   updateEvent,
-  updateMyEvent,
 };

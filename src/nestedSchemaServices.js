@@ -28,7 +28,7 @@ const nestedUserObj = (user) => {
 };
 const nestedUser = async (userId) => {
   const user = await User.findById(userId);
-  const nexTestedUserObj = nestedUserObj(user);
+  const nexTestedUserObj = nestedUserObj(user._doc);
   return nexTestedUserObj;
 };
 const nestedUsers = async (userIds) => {

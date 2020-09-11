@@ -9,6 +9,7 @@ const {
 const bcrypt = require("bcrypt");
 const { USER_TYPES } = require("../../configs");
 const { UserType, RoleEnum } = require("../../objectTypes");
+const { nestedUser, nestedUserObj } = require("../../nestedSchemaServices");
 const User = require("../../Models/User");
 
 // queries
@@ -25,7 +26,8 @@ const user = {
         return new GraphQLError("_id:required");
       } else {
         const user = await User.findById(_id);
-        return user;
+        const nextUser = nestedUser(user._doc);
+        return nextUser;
       }
     } catch (err) {
       console.error(err);
@@ -85,7 +87,6 @@ const createUser = {
     password: { type: new GraphQLNonNull(GraphQLString) },
   },
   resolve: async (parent, args, req) => {
-    console.log(req.user);
     try {
       const { userName, email, role, active, password } = args;
       // validation
@@ -108,7 +109,8 @@ const createUser = {
         active,
         password: hashedPassword,
       });
-      return newUser;
+      const nextUser = nestedUser(newUser._doc);
+      return nextUser;
     } catch (err) {
       if (err.code === 11000) {
         return new GraphQLError("email:duplicate");
@@ -120,12 +122,28 @@ const createUser = {
   },
 };
 
-const me = {};
-
-const updateUser = {};
+const me = {
+  name: "me",
+  type: UserType,
+  resolve: async (parent, args, req) => {
+    try {
+      const currentUser = await User.findById(req.user._id);
+      if (currentUser) {
+        const nextUser = nestedUser(currentUser._doc);
+        return nextUser;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.error(err);
+      return new GraphQLError("be:error");
+    }
+  },
+};
 
 module.exports = {
   user,
   users,
   createUser,
+  me,
 };
