@@ -6,9 +6,11 @@ const app = express();
 
 require("dotenv").config();
 
+const { MONGO_URL } = require('./src/configs')
+
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.qnvut.mongodb.net/${process.env.MONGO_DB_NAME}?retryWrites=true&w=majority`,
+    MONGO_URL,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {

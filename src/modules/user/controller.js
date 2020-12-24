@@ -6,10 +6,9 @@ const {
   GraphQLNonNull,
   GraphQLBoolean,
 } = require("graphql");
-const bcrypt = require("bcrypt");
 const { USER_TYPES } = require("../../configs");
 const { UserType, RoleEnum } = require("../../objectTypes");
-const { nestedUser, nestedUserObj } = require("../../nestedSchemaServices");
+const { nestedUser } = require("../../nestedSchemaServices");
 const User = require("../../Models/User");
 
 // queries
@@ -101,13 +100,12 @@ const createUser = {
       if (typeof active !== "boolean") return new GraphQLError("active:format");
       if (!password) return new GraphQLError("password:required");
 
-      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await User.create({
         userName,
         email,
         role,
         active,
-        password: hashedPassword,
+        password,
       });
       const nextUser = nestedUser(newUser._doc);
       return nextUser;

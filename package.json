@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -r dotenv/config index.js"
+    "start": "nodemon -r dotenv/config index.js",
+    "seed": "node seeder.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "moment": "^2.27.0",
     "mongoose": "^5.10.3",
     "mongoose-autopopulate": "^0.12.2",
+    "mongoose-seed": "^0.6.0",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0"
