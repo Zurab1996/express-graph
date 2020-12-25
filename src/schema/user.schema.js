@@ -5,6 +5,8 @@ const {
   myEvents,
   attendEvent,
   updateEvent,
+  event,
+  events,
 } = require("../modules/event/controller");
 
 const userAccessUserQuery = new GraphQLObjectType({
@@ -14,6 +16,8 @@ const userAccessUserQuery = new GraphQLObjectType({
   fields: () => ({
     myEvent,
     myEvents,
+    event,
+    events,
     me,
   }),
 });

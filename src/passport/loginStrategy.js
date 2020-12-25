@@ -4,7 +4,7 @@ const User = require("../Models/User");
 
 const localStrategy = new LoginStrategy(async (req, done) => {
   const { email, password } = req.query;
-
+  
   const user = await User.findOne({ email });
   if (user) {
     if (!password) {

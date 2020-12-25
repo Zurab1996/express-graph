@@ -1,6 +1,6 @@
 const { GraphQLObjectType, GraphQLSchema } = require("graphql");
 const { user, users, createUser } = require("../modules/user/controller");
-const { event, events, createEvent } = require("../modules/event/controller");
+const { createEvent } = require("../modules/event/controller");
 
 const adminAccessUserQuery = new GraphQLObjectType({
   type: "adminAccessUserQuery",
@@ -8,9 +8,7 @@ const adminAccessUserQuery = new GraphQLObjectType({
   description: "admin access query",
   fields: () => ({
     user,
-    users,
-    event,
-    events,
+    users
   }),
 });
 
