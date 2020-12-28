@@ -39,6 +39,7 @@ mongoose
     app.listen(process.env.PORT, () => {
       console.log(`app started. http://localhost:${process.env.PORT}/`);
     });
+    require('./seeder.js')
   })
   .catch((err) => {
     console.log(err, "something went wrongs");
