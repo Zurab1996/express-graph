@@ -7,8 +7,6 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    volumes:
-      - .:/backend/app
     environment:
       PORT: 3000
       NODE_ENV: prod
@@ -21,6 +19,13 @@ services:
       SESSION_SECRET: 23efw@as43SS@Y
     links:
       - mongo
+  frontend: 
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "4000:80"
   mongo:
     image: mongo:latest
     restart: always
