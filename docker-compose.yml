@@ -1,12 +1,14 @@
 version: "3.9"
 services:
-  server:
-    build: .
+  backend:
+    build: 
+      context: backend
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - .:/backend/app
     environment:
       PORT: 3000
       NODE_ENV: prod
