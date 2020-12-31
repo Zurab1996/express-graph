@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  backend:
+    build: 
+      context: backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: prod
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_USER: root
+      MONGO_PASSWORD: password
+      MONGO_AUTH_SERVICE_DB: admin
+      MONGO_DB_NAME: event
+      SESSION_SECRET: 23efw@as43SS@Y
+    links:
+      - mongo
+  frontend: 
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "4000:80"
+  mongo:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongovolume:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: admin
+volumes:
+  mongovolume:

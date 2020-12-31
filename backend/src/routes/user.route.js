@@ -8,7 +8,7 @@ router.all(
     if (req.isAuthenticated()) {
       next();
     } else {
-      res.json({ message: "user:unauthorized" });
+      res.json({ message: "user:unauthaorized" });
     }
   },
   graphqlHTTP({
